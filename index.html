@@ -130,7 +130,7 @@
         .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
         .divider-icon { font-size: 16px; }
 
-        /* ===== PRIZE CARDS (4 cards) ===== */
+        /* ===== PRIZE CARDS ===== */
         .prize-board {
             display: flex;
             gap: 12px;
@@ -159,10 +159,10 @@
             border-radius: 2px 2px 0 0;
         }
 
-        .prize-card.coupon::before  { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
-        .prize-card.jar::before     { background: linear-gradient(90deg, #ff9900, #ffd700); }
-        .prize-card.bag::before     { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
-        .prize-card.total::before   { background: linear-gradient(90deg, #aaa, #666); }
+        .prize-card.coupon::before { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+        .prize-card.jar::before    { background: linear-gradient(90deg, #ff9900, #ffd700); }
+        .prize-card.bag::before    { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
+        .prize-card.total::before  { background: linear-gradient(90deg, #aaa, #666); }
 
         .prize-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
 
@@ -200,9 +200,9 @@
         .prog-label { font-size: 11px; color: rgba(255,255,255,0.45); min-width: 62px; text-align: left; white-space: nowrap; }
         .prog-bar-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
         .prog-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
-        .prog-fill.c  { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
-        .prog-fill.j  { background: linear-gradient(90deg, #ff9900, #ffd700); }
-        .prog-fill.b  { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
+        .prog-fill.c { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+        .prog-fill.j { background: linear-gradient(90deg, #ff9900, #ffd700); }
+        .prog-fill.b { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
         .prog-num { font-size: 11px; color: rgba(255,255,255,0.4); min-width: 46px; text-align: right; }
 
         /* Display */
@@ -251,7 +251,6 @@
         }
 
         .slot-result-text { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-
         .slot-result-text.win-coupon { color: #00d4ff; text-shadow: 0 0 25px rgba(0,212,255,0.7); }
         .slot-result-text.win-jar    { color: #ffd700; text-shadow: 0 0 25px rgba(255,215,0,0.7); }
         .slot-result-text.win-bag    { color: #ff6b9d; text-shadow: 0 0 25px rgba(255,107,157,0.7); }
@@ -340,9 +339,9 @@
             to   { opacity: 1; transform: translateX(0); }
         }
 
-        .history-item.coupon-item { background: rgba(0,212,255,0.08);   border-left: 3px solid #00d4ff; }
-        .history-item.jar-item    { background: rgba(255,215,0,0.08);    border-left: 3px solid #ffd700; }
-        .history-item.bag-item    { background: rgba(255,107,157,0.08);  border-left: 3px solid #ff6b9d; }
+        .history-item.coupon-item { background: rgba(0,212,255,0.08);  border-left: 3px solid #00d4ff; }
+        .history-item.jar-item    { background: rgba(255,215,0,0.08);   border-left: 3px solid #ffd700; }
+        .history-item.bag-item    { background: rgba(255,107,157,0.08); border-left: 3px solid #ff6b9d; }
 
         .h-num  { color: rgba(255,255,255,0.22); min-width: 26px; font-size: 11px; }
         .h-name { flex: 1; font-weight: 700; }
@@ -353,7 +352,6 @@
 
         .empty-history { text-align: center; color: rgba(255,255,255,0.18); font-size: 13px; padding: 22px 0; }
 
-        /* Reset */
         .reset-btn {
             background: transparent;
             border: 1px solid rgba(255,255,255,0.14);
@@ -437,7 +435,7 @@
         <div class="prize-card coupon">
             <div class="prize-icon">🎫</div>
             <div class="prize-name">คูปอง</div>
-            <div class="prize-count" id="coupon-count">50</div>
+            <div class="prize-count" id="coupon-count">30</div>
             <div class="prize-label">เหลืออยู่</div>
         </div>
         <div class="prize-card jar">
@@ -463,13 +461,12 @@
     <!-- SLOT MACHINE -->
     <div class="slot-machine">
 
-        <!-- Progress Bars -->
         <div class="progress-section">
             <div class="prog-row">
                 <div class="prog-icon">🎫</div>
                 <div class="prog-label">คูปอง</div>
                 <div class="prog-bar-wrap"><div class="prog-fill c" id="coupon-bar" style="width:100%"></div></div>
-                <div class="prog-num" id="coupon-prog">50 / 50</div>
+                <div class="prog-num" id="coupon-prog">30 / 30</div>
             </div>
             <div class="prog-row">
                 <div class="prog-icon">🍯</div>
@@ -485,14 +482,12 @@
             </div>
         </div>
 
-        <!-- Display -->
         <div class="slot-display">
             <span class="slot-emoji" id="slot-emoji">🎁</span>
             <div class="slot-result-text idle" id="result-text">กดปุ่มเพื่อสุ่มรางวัล</div>
             <div class="slot-sub-text" id="result-sub"></div>
         </div>
 
-        <!-- Spin Button -->
         <button class="spin-btn" id="spin-btn" onclick="spin()">
             🎰 &nbsp;สุ่มเลย!
         </button>
@@ -520,10 +515,10 @@
 
 <script>
     // ========== CONFIG ==========
-    const INIT = { coupon: 50, jar: 50, bag: 50 };
+    const INIT = { coupon: 30, jar: 50, bag: 50 };
 
     let state = {
-        coupon: 50, jar: 50, bag: 50,
+        coupon: 30, jar: 50, bag: 50,
         spins: 0,
         couponWon: 0, jarWon: 0, bagWon: 0,
         history: []
@@ -531,11 +526,10 @@
 
     let isSpinning = false;
 
-    // Prize definitions
     const PRIZES = {
-        coupon: { name: '🎫 คูปอง',      emoji: '🎫', cls: 'win-coupon', confetti: ['#00d4ff','#7b61ff'], histCls: 'coupon-item' },
-        jar:    { name: '🍯 ขนมกระปุก',  emoji: '🍯', cls: 'win-jar',    confetti: ['#ffd700','#ff9900'], histCls: 'jar-item'    },
-        bag:    { name: '🍿 ขนมซอง',     emoji: '🍿', cls: 'win-bag',    confetti: ['#ff6b9d','#ff4466'], histCls: 'bag-item'    },
+        coupon: { name: '🎫 คูปอง',     emoji: '🎫', cls: 'win-coupon', confetti: ['#00d4ff','#7b61ff'], histCls: 'coupon-item' },
+        jar:    { name: '🍯 ขนมกระปุก', emoji: '🍯', cls: 'win-jar',    confetti: ['#ffd700','#ff9900'], histCls: 'jar-item'    },
+        bag:    { name: '🍿 ขนมซอง',    emoji: '🍿', cls: 'win-bag',    confetti: ['#ff6b9d','#ff4466'], histCls: 'bag-item'    },
     };
 
     // ========== PARTICLES ==========
@@ -606,16 +600,15 @@
             clearInterval(iv);
             emoji.className = 'slot-emoji';
 
-            // Build pool (equal weight per remaining item)
+            // Build pool
             const pool = [];
             for (let i = 0; i < state.coupon; i++) pool.push('coupon');
             for (let i = 0; i < state.jar;    i++) pool.push('jar');
             for (let i = 0; i < state.bag;    i++) pool.push('bag');
 
-            const pick = pool[Math.floor(Math.random() * pool.length)];
+            const pick  = pool[Math.floor(Math.random() * pool.length)];
             const prize = PRIZES[pick];
 
-            // Update state
             state[pick]--;
             state.spins++;
             state[pick + 'Won']++;
@@ -623,12 +616,10 @@
             const now = new Date();
             const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-            // Update display
             emoji.textContent = prize.emoji;
             resEl.className   = `slot-result-text ${prize.cls}`;
             resEl.textContent = `🎉 ยินดีด้วย! ได้รับ${prize.name.replace(/^../,'')}`;
 
-            // Sub text
             const remaining = [];
             if (state.coupon > 0) remaining.push(`🎫 ${state.coupon}`);
             if (state.jar    > 0) remaining.push(`🍯 ${state.jar}`);
@@ -642,7 +633,6 @@
             isSpinning = false;
             btn.disabled = false;
 
-            // All prizes gone
             if (state.coupon === 0 && state.jar === 0 && state.bag === 0) {
                 btn.innerHTML = '🎊 ของรางวัลหมดแล้ว!';
                 btn.className = 'spin-btn empty';
@@ -656,25 +646,22 @@
 
     // ========== UPDATE UI ==========
     function updateUI() {
-        // Counts
         document.getElementById('coupon-count').textContent = state.coupon;
         document.getElementById('jar-count').textContent    = state.jar;
         document.getElementById('bag-count').textContent    = state.bag;
         document.getElementById('spin-count').textContent   = state.spins;
 
-        // Won stats
-        document.getElementById('coupon-won').textContent = state.couponWon;
-        document.getElementById('jar-won').textContent    = state.jarWon;
-        document.getElementById('bag-won').textContent    = state.bagWon;
+        document.getElementById('coupon-won').textContent   = state.couponWon;
+        document.getElementById('jar-won').textContent      = state.jarWon;
+        document.getElementById('bag-won').textContent      = state.bagWon;
 
-        // Progress bars
-        document.getElementById('coupon-bar').style.width = (state.coupon / INIT.coupon * 100) + '%';
-        document.getElementById('jar-bar').style.width    = (state.jar    / INIT.jar    * 100) + '%';
-        document.getElementById('bag-bar').style.width    = (state.bag    / INIT.bag    * 100) + '%';
+        document.getElementById('coupon-bar').style.width   = (state.coupon / INIT.coupon * 100) + '%';
+        document.getElementById('jar-bar').style.width      = (state.jar    / INIT.jar    * 100) + '%';
+        document.getElementById('bag-bar').style.width      = (state.bag    / INIT.bag    * 100) + '%';
 
-        document.getElementById('coupon-prog').textContent = `${state.coupon} / ${INIT.coupon}`;
-        document.getElementById('jar-prog').textContent    = `${state.jar}    / ${INIT.jar}`;
-        document.getElementById('bag-prog').textContent    = `${state.bag}    / ${INIT.bag}`;
+        document.getElementById('coupon-prog').textContent  = `${state.coupon} / ${INIT.coupon}`;
+        document.getElementById('jar-prog').textContent     = `${state.jar}    / ${INIT.jar}`;
+        document.getElementById('bag-prog').textContent     = `${state.bag}    / ${INIT.bag}`;
     }
 
     // ========== HISTORY ==========
@@ -695,8 +682,8 @@
 
     // ========== RESET ==========
     function confirmReset() {
-        if (confirm('⚠️ รีเซ็ตของรางวัลใหม่?\n\n🎫 คูปอง 50 ใบ\n🍯 ขนมกระปุก 50 ชิ้น\n🍿 ขนมซอง 50 ชิ้น\n\nประวัติทั้งหมดจะถูกลบ')) {
-            state = { coupon: 50, jar: 50, bag: 50, spins: 0, couponWon: 0, jarWon: 0, bagWon: 0, history: [] };
+        if (confirm('⚠️ รีเซ็ตของรางวัลใหม่?\n\n🎫 คูปอง 30 ใบ\n🍯 ขนมกระปุก 50 ชิ้น\n🍿 ขนมซอง 50 ชิ้น\n\nประวัติทั้งหมดจะถูกลบ')) {
+            state = { coupon: 30, jar: 50, bag: 50, spins: 0, couponWon: 0, jarWon: 0, bagWon: 0, history: [] };
 
             document.getElementById('history-list').innerHTML =
                 '<li class="empty-history">ยังไม่มีการสุ่ม... กดปุ่มด้านบนเพื่อเริ่มต้น 🎲</li>';
