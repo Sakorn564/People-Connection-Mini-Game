@@ -1,1164 +1,722 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>People Connection - SHEE Week Mini Game</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: linear-gradient(135deg, #020b18 0%, #041225 50%, #020e14 100%);
-    min-height: 100vh;
-    color: white;
-    overflow-x: hidden;
-  }
-
-  .screen { display: none; min-height: 100vh; }
-  .screen.active { display: flex; flex-direction: column; }
-
-  /* ===================== WELCOME ===================== */
-  #screen-welcome {
-    align-items: center;
-    justify-content: center;
-    padding: 30px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .bg-glow {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 0;
-    pointer-events: none;
-  }
-  .bg-glow-1 { width: 400px; height: 400px; background: rgba(0,184,148,0.12); top: -100px; left: -100px; }
-  .bg-glow-2 { width: 300px; height: 300px; background: rgba(9,132,227,0.1); bottom: -50px; right: -50px; }
-
-  .welcome-card {
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(0,206,201,0.25);
-    border-radius: 24px;
-    padding: 36px 28px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    backdrop-filter: blur(10px);
-  }
-
-  .game-logo {
-    width: 72px; height: 72px;
-    background: linear-gradient(135deg, #00b894, #00cec9);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin: 0 auto 16px;
-    box-shadow: 0 0 30px rgba(0,184,148,0.5);
-    animation: logoPulse 2s ease-in-out infinite;
-  }
-
-  @keyframes logoPulse {
-    0%,100% { box-shadow: 0 0 20px rgba(0,184,148,0.4); }
-    50%      { box-shadow: 0 0 45px rgba(0,184,148,0.8); }
-  }
-
-  .welcome-brand {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .welcome-title {
-    font-size: 1.8rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #00ff9d, #00cec9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.1;
-    margin-bottom: 6px;
-  }
-
-  .welcome-subtitle {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 24px;
-    line-height: 1.5;
-  }
-
-  /* Input group */
-  .input-group {
-    margin-bottom: 16px;
-    text-align: left;
-  }
-
-  .input-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #00cec9;
-    margin-bottom: 6px;
-    display: block;
-    letter-spacing: 0.5px;
-  }
-
-  .input-field {
-    width: 100%;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(0,206,201,0.3);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: white;
-    font-size: 0.9rem;
-    font-family: 'Sarabun', sans-serif;
-    font-weight: 600;
-    outline: none;
-    transition: border-color 0.3s;
-  }
-
-  .input-field:focus {
-    border-color: #00cec9;
-    box-shadow: 0 0 0 3px rgba(0,206,201,0.15);
-  }
-
-  .input-field::placeholder { color: rgba(255,255,255,0.25); }
-
-  /* ===== DROPDOWN STYLE ===== */
-  .select-wrapper {
-    position: relative;
-    width: 100%;
-  }
-
-  .select-wrapper::after {
-    content: '▾';
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #00cec9;
-    font-size: 1rem;
-    pointer-events: none;
-    font-weight: 900;
-  }
-
-  .dept-select {
-    width: 100%;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(0,206,201,0.3);
-    border-radius: 12px;
-    padding: 12px 40px 12px 16px;
-    color: white;
-    font-size: 0.88rem;
-    font-family: 'Sarabun', sans-serif;
-    font-weight: 600;
-    outline: none;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: all 0.3s;
-  }
-
-  .dept-select:focus {
-    border-color: #00cec9;
-    box-shadow: 0 0 0 3px rgba(0,206,201,0.15);
-    background: rgba(0,206,201,0.08);
-  }
-
-  .dept-select option {
-    background: #041225;
-    color: white;
-    font-weight: 600;
-    padding: 8px;
-  }
-
-  .dept-select option:first-child {
-    color: rgba(255,255,255,0.4);
-  }
-
-  /* Dept count badge */
-  .dept-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(0,184,148,0.1);
-    border: 1px solid rgba(0,184,148,0.3);
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 0.62rem;
-    font-weight: 700;
-    color: #00b894;
-    margin-top: 6px;
-  }
-
-  /* Start button */
-  .btn-start {
-    width: 100%;
-    background: linear-gradient(135deg, #00b894, #00cec9);
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 900;
-    padding: 14px;
-    border-radius: 14px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    box-shadow: 0 4px 25px rgba(0,184,148,0.5);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    position: relative;
-    overflow: hidden;
-    margin-top: 4px;
-  }
-
-  .btn-start::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -60%;
-    width: 40%; height: 200%;
-    background: rgba(255,255,255,0.2);
-    transform: skewX(-20deg);
-    animation: shine 3s ease-in-out infinite;
-  }
-
-  @keyframes shine { 0%{left:-60%} 100%{left:120%} }
-
-  .btn-start:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 35px rgba(0,184,148,0.7);
-  }
-
-  .btn-start:active { transform: scale(0.98); }
-
-  /* ===================== GAME SCREEN ===================== */
-  #screen-game { flex-direction: column; padding: 0; }
-
-  .game-header {
-    background: rgba(0,0,0,0.4);
-    border-bottom: 1px solid rgba(0,206,201,0.15);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .gh-left { display: flex; align-items: center; gap: 10px; }
-  .gh-logo { font-size: 1.3rem; }
-  .gh-title  { font-size: 0.78rem; font-weight: 800; color: #00cec9; line-height: 1.2; }
-  .gh-player { font-size: 0.65rem; color: rgba(255,255,255,0.5); font-weight: 600; }
-
-  .gh-score-box {
-    background: linear-gradient(135deg, rgba(0,184,148,0.2), rgba(0,206,201,0.1));
-    border: 1.5px solid rgba(0,184,148,0.4);
-    border-radius: 10px;
-    padding: 6px 14px;
-    text-align: center;
-  }
-
-  .gh-score-label { font-size: 0.58rem; color: rgba(255,255,255,0.4); display:block; font-weight:700; letter-spacing:1px; }
-  .gh-score-val   { font-size: 1.2rem; font-weight: 900; color: #00b894; display:block; }
-
-  .timer-bar-wrap {
-    padding: 8px 20px 4px;
-    background: rgba(0,0,0,0.2);
-  }
-
-  .timer-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: 0.68rem;
-    font-weight: 700;
-  }
-
-  .timer-label { color: rgba(255,255,255,0.5); }
-  .timer-val   { color: #00cec9; }
-
-  .timer-track {
-    height: 6px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .timer-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #00b894, #00cec9);
-    transition: width 1s linear, background 0.5s;
-  }
-
-  .timer-fill.warning { background: linear-gradient(90deg, #f7c948, #ff9f43); }
-  .timer-fill.danger  { background: linear-gradient(90deg, #ff6b6b, #ff5252); }
-
-  .question-area { padding: 16px 20px; flex: 1; }
-
-  .q-progress {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .q-num { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
-
-  .q-dots { display: flex; gap: 5px; }
-
-  .q-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    transition: all 0.3s;
-  }
-
-  .q-dot.done    { background: #00b894; }
-  .q-dot.current { background: #00cec9; box-shadow: 0 0 8px #00cec9; transform: scale(1.3); }
-  .q-dot.wrong   { background: #ff6b6b; }
-
-  .q-category {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0,184,148,0.1);
-    border: 1px solid rgba(0,184,148,0.3);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: #00b894;
-    margin-bottom: 12px;
-  }
-
-  .q-card {
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(0,206,201,0.2);
-    border-radius: 16px;
-    padding: 18px 16px;
-    margin-bottom: 16px;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .q-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #00b894, #00cec9);
-  }
-
-  .q-text { font-size: 1.05rem; font-weight: 800; color: #ffffff; line-height: 1.4; }
-
-  .answers-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .ans-btn {
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 14px 10px;
-    color: rgba(255,255,255,0.85);
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Sarabun', sans-serif;
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .ans-btn:hover:not(:disabled) {
-    background: rgba(0,206,201,0.12);
-    border-color: rgba(0,206,201,0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,206,201,0.2);
-  }
-
-  .ans-btn.correct {
-    background: rgba(0,184,148,0.25);
-    border-color: #00b894;
-    color: #00ff9d;
-    box-shadow: 0 0 20px rgba(0,184,148,0.4);
-  }
-
-  .ans-btn.wrong {
-    background: rgba(255,107,107,0.2);
-    border-color: #ff6b6b;
-    color: #ff8080;
-  }
-
-  .ans-btn:disabled { cursor: not-allowed; }
-
-  /* Feedback popup */
-  .feedback-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    background: rgba(10,20,30,0.95);
-    border: 2px solid #00b894;
-    border-radius: 20px;
-    padding: 28px 32px;
-    text-align: center;
-    z-index: 999;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    backdrop-filter: blur(20px);
-    min-width: 280px;
-    box-shadow: 0 0 60px rgba(0,184,148,0.3);
-  }
-
-  .feedback-popup.show      { transform: translate(-50%, -50%) scale(1); }
-  .feedback-popup.wrong-fb  { border-color: #ff6b6b; box-shadow: 0 0 60px rgba(255,107,107,0.3); }
-
-  .fb-emoji  { font-size: 3rem; margin-bottom: 10px; display:block; }
-  .fb-title  { font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
-  .fb-title.correct { color: #00ff9d; }
-  .fb-title.wrong   { color: #ff6b6b; }
-  .fb-points { font-size: 1rem; font-weight: 700; color: #f7c948; margin-bottom: 6px; }
-  .fb-fact   { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height:1.5; }
-
-  /* ===================== RESULT ===================== */
-  #screen-result {
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  .result-wrap { width: 100%; max-width: 420px; margin: 0 auto; }
-
-  .result-header { text-align: center; margin-bottom: 20px; }
-
-  .result-trophy {
-    font-size: 3.5rem; display:block;
-    animation: trophyBounce 1s ease-in-out infinite;
-  }
-
-  @keyframes trophyBounce {
-    0%,100% { transform: translateY(0) rotate(-5deg); }
-    50%      { transform: translateY(-10px) rotate(5deg); }
-  }
-
-  .result-title { font-size: 1.6rem; font-weight: 900; color: #00ff9d; margin-bottom: 4px; }
-  .result-name  { font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.7); }
-
-  .score-big-card {
-    background: linear-gradient(135deg, rgba(0,184,148,0.15), rgba(0,206,201,0.1));
-    border: 2px solid rgba(0,184,148,0.4);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .score-big-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #00b894, #00cec9, #0984e3);
-  }
-
-  .score-final-label { font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight:700; letter-spacing:2px; display:block; margin-bottom:4px; }
-  .score-final-val   { font-size: 3.5rem; font-weight: 900; color: #00b894; display:block; line-height:1; }
-  .score-final-max   { font-size: 0.8rem; color: rgba(255,255,255,0.4); display:block; margin-top:4px; }
-
-  .score-breakdown {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .sb-item {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 10px 6px;
-    text-align: center;
-  }
-
-  .sb-icon  { font-size: 1.2rem; display:block; margin-bottom:3px; }
-  .sb-label { font-size: 0.6rem; color: rgba(255,255,255,0.4); display:block; font-weight:700; }
-  .sb-val   { font-size: 0.9rem; font-weight:900; display:block; }
-
-  .lb-title {
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: #00cec9;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .lb-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-
-  .lb-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 10px 14px;
-  }
-
-  .lb-item.me {
-    background: rgba(0,184,148,0.12);
-    border-color: rgba(0,184,148,0.4);
-    box-shadow: 0 0 15px rgba(0,184,148,0.15);
-  }
-
-  .lb-rank {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 900;
-    flex-shrink: 0;
-  }
-
-  .lb-rank.r1 { background: linear-gradient(135deg, #f7c948, #ff9f43); color: #7a3800; font-size:1rem; }
-  .lb-rank.r2 { background: linear-gradient(135deg, #b2bec3, #636e72); color: #fff; }
-  .lb-rank.r3 { background: linear-gradient(135deg, #e17055, #d63031); color: #fff; }
-  .lb-rank.rn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); font-size:0.72rem; }
-
-  .lb-info  { flex: 1; }
-  .lb-name  { font-size: 0.82rem; font-weight: 800; color: #fff; display:block; }
-  .lb-dept  { font-size: 0.62rem; color: rgba(255,255,255,0.4); display:block; font-weight:600; }
-  .lb-score-val { font-size: 1rem; font-weight: 900; color: #00b894; }
-
-  .reward-card {
-    background: linear-gradient(135deg, rgba(247,201,72,0.12), rgba(255,107,53,0.08));
-    border: 1.5px solid rgba(247,201,72,0.35);
-    border-radius: 16px;
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 16px;
-    animation: rewardGlow 2s ease-in-out infinite;
-  }
-
-  @keyframes rewardGlow {
-    0%,100% { box-shadow: 0 0 0 rgba(247,201,72,0); }
-    50%      { box-shadow: 0 0 25px rgba(247,201,72,0.2); }
-  }
-
-  .reward-title { font-size: 1rem; font-weight: 900; color: #f7c948; margin-bottom: 4px; }
-  .reward-msg   { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height:1.6; font-weight:600; }
-  .reward-emoji { font-size: 2rem; display:block; margin-bottom:8px; }
-
-  .btn-play-again {
-    width: 100%;
-    background: linear-gradient(135deg, #00b894, #00cec9);
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 900;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    margin-bottom: 8px;
-    transition: all 0.2s;
-  }
-
-  .btn-play-again:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,184,148,0.4); }
-
-  .btn-share {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.7);
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    transition: all 0.2s;
-  }
-
-  .btn-share:hover { border-color: rgba(0,206,201,0.4); color: #00cec9; }
-
-  /* Overlay */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 998;
-    display: none;
-  }
-  .overlay.show { display: block; }
-
-  /* Particles */
-  .particle-wrap {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-  }
-
-  .fp {
-    position: absolute;
-    border-radius: 50%;
-    animation: fpFloat linear infinite;
-    opacity: 0;
-  }
-
-  @keyframes fpFloat {
-    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-    10%  { opacity: 0.5; }
-    90%  { opacity: 0.1; }
-    100% { transform: translateY(-100px) scale(1); opacity: 0; }
-  }
-
-  .confetti-piece {
-    position: fixed;
-    width: 10px; height: 10px;
-    border-radius: 2px;
-    animation: confettiFall linear forwards;
-    z-index: 1000;
-    pointer-events: none;
-  }
-
-  @keyframes confettiFall {
-    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
-  @media (max-width: 400px) {
-    .welcome-card { padding: 24px 18px; }
-    .welcome-title { font-size: 1.5rem; }
-    .answers-grid { gap: 8px; }
-    .ans-btn { padding: 12px 8px; font-size: 0.78rem; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 People Connection Booth</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 760px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* ===== HEADER ===== */
+        .header { margin-bottom: 24px; }
+
+        .wd-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            padding: 6px 18px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .wd-dot {
+            width: 8px; height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00d4ff;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .main-title {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .booth-title {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 8px;
+        }
+
+        .booth-title .people {
+            background: linear-gradient(90deg, #00d4ff, #7b61ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(0,212,255,0.4));
+        }
+
+        .booth-title .connection {
+            background: linear-gradient(90deg, #ff6b9d, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .booth-title .booth {
+            background: linear-gradient(90deg, #ffd700, #ff9900);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle { font-size: 14px; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto 22px;
+            max-width: 400px;
+        }
+        .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
+        .divider-icon { font-size: 16px; }
+
+        /* ===== PRIZE CARDS (4 cards) ===== */
+        .prize-board {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 22px;
+        }
+
+        .prize-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 16px 14px;
+            backdrop-filter: blur(12px);
+            flex: 1;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .prize-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            border-radius: 2px 2px 0 0;
+        }
+
+        .prize-card.coupon::before  { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+        .prize-card.jar::before     { background: linear-gradient(90deg, #ff9900, #ffd700); }
+        .prize-card.bag::before     { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
+        .prize-card.total::before   { background: linear-gradient(90deg, #aaa, #666); }
+
+        .prize-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+
+        .prize-icon  { font-size: 30px; margin-bottom: 6px; }
+        .prize-name  { font-size: 12px; font-weight: 700; margin-bottom: 5px; color: rgba(255,255,255,0.65); }
+        .prize-count { font-size: 32px; font-weight: 900; line-height: 1; }
+        .prize-card.coupon .prize-count { color: #00d4ff; text-shadow: 0 0 15px rgba(0,212,255,0.4); }
+        .prize-card.jar    .prize-count { color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .prize-card.bag    .prize-count { color: #ff6b9d; text-shadow: 0 0 15px rgba(255,107,157,0.4); }
+        .prize-card.total  .prize-count { color: #aaa; }
+        .prize-label { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+
+        /* ===== SLOT MACHINE ===== */
+        .slot-machine {
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 26px;
+            padding: 24px 26px 28px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        /* Progress */
+        .progress-section { margin-bottom: 20px; }
+
+        .prog-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 9px;
+        }
+
+        .prog-icon  { font-size: 15px; min-width: 20px; }
+        .prog-label { font-size: 11px; color: rgba(255,255,255,0.45); min-width: 62px; text-align: left; white-space: nowrap; }
+        .prog-bar-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+        .prog-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+        .prog-fill.c  { background: linear-gradient(90deg, #00d4ff, #7b61ff); }
+        .prog-fill.j  { background: linear-gradient(90deg, #ff9900, #ffd700); }
+        .prog-fill.b  { background: linear-gradient(90deg, #ff6b9d, #ff4466); }
+        .prog-num { font-size: 11px; color: rgba(255,255,255,0.4); min-width: 46px; text-align: right; }
+
+        /* Display */
+        .slot-display {
+            background: rgba(0,0,0,0.35);
+            border: 1.5px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            min-height: 165px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-display::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0%   { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .slot-emoji {
+            font-size: 68px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .slot-emoji.spinning {
+            animation: bounce 0.15s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1) rotate(-5deg); }
+            to   { transform: scale(1.15) rotate(5deg); }
+        }
+
+        .slot-result-text { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
+
+        .slot-result-text.win-coupon { color: #00d4ff; text-shadow: 0 0 25px rgba(0,212,255,0.7); }
+        .slot-result-text.win-jar    { color: #ffd700; text-shadow: 0 0 25px rgba(255,215,0,0.7); }
+        .slot-result-text.win-bag    { color: #ff6b9d; text-shadow: 0 0 25px rgba(255,107,157,0.7); }
+        .slot-result-text.idle       { color: rgba(255,255,255,0.22); font-size: 16px; font-weight: 400; letter-spacing: 2px; }
+
+        .slot-sub-text { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 7px; }
+
+        /* Spin Button */
+        .spin-btn {
+            background: linear-gradient(135deg, #00d4ff 0%, #7b61ff 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 17px 65px;
+            font-size: 19px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 35px rgba(0,212,255,0.35);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.25);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .spin-btn:hover::after { width: 400px; height: 400px; }
+        .spin-btn:hover { transform: scale(1.06); box-shadow: 0 15px 45px rgba(0,212,255,0.5); }
+        .spin-btn:disabled { background: linear-gradient(135deg, #444, #333); cursor: not-allowed; box-shadow: none; transform: none; }
+        .spin-btn.empty { background: linear-gradient(135deg, #ff4444, #cc0000); box-shadow: 0 10px 30px rgba(255,68,68,0.3); }
+
+        /* ===== HISTORY ===== */
+        .history-wrap {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 18px;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-title { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 2px; }
+
+        .history-stats { display: flex; gap: 12px; font-size: 12px; flex-wrap: wrap; }
+        .hstat { color: rgba(255,255,255,0.35); }
+        .hstat span { font-weight: 700; }
+        .hstat.c span { color: #00d4ff; }
+        .hstat.j span { color: #ffd700; }
+        .hstat.b span { color: #ff6b9d; }
+
+        .history-list { list-style: none; }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 11px;
+            border-radius: 9px;
+            margin-bottom: 5px;
+            font-size: 13px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .history-item.coupon-item { background: rgba(0,212,255,0.08);   border-left: 3px solid #00d4ff; }
+        .history-item.jar-item    { background: rgba(255,215,0,0.08);    border-left: 3px solid #ffd700; }
+        .history-item.bag-item    { background: rgba(255,107,157,0.08);  border-left: 3px solid #ff6b9d; }
+
+        .h-num  { color: rgba(255,255,255,0.22); min-width: 26px; font-size: 11px; }
+        .h-name { flex: 1; font-weight: 700; }
+        .history-item.coupon-item .h-name { color: #00d4ff; }
+        .history-item.jar-item    .h-name { color: #ffd700; }
+        .history-item.bag-item    .h-name { color: #ff6b9d; }
+        .h-time { color: rgba(255,255,255,0.22); font-size: 11px; }
+
+        .empty-history { text-align: center; color: rgba(255,255,255,0.18); font-size: 13px; padding: 22px 0; }
+
+        /* Reset */
+        .reset-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 25px;
+            padding: 9px 28px;
+            color: rgba(255,255,255,0.38);
+            cursor: pointer;
+            font-size: 12px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            border-color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* Confetti */
+        .confetti-wrap {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .cp {
+            position: absolute;
+            opacity: 0;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(800deg); opacity: 0; }
+        }
+
+        .history-wrap::-webkit-scrollbar { width: 3px; }
+        .history-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+        @media (max-width: 520px) {
+            .booth-title { font-size: 28px; }
+            .prize-board { flex-wrap: wrap; }
+            .prize-card  { min-width: calc(50% - 6px); }
+            .slot-emoji  { font-size: 52px; }
+            .slot-result-text { font-size: 19px; }
+            .spin-btn { padding: 15px 36px; font-size: 16px; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="particle-wrap" id="particles"></div>
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
-<div class="overlay" id="overlay"></div>
+<div class="particles" id="particles"></div>
+<div class="confetti-wrap" id="confetti"></div>
 
-<div class="feedback-popup" id="feedbackPopup">
-  <span class="fb-emoji" id="fbEmoji"></span>
-  <div class="fb-title" id="fbTitle"></div>
-  <div class="fb-points" id="fbPoints"></div>
-  <div class="fb-fact" id="fbFact"></div>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="wd-badge">
+            <div class="wd-dot"></div>
+            Western Digital &nbsp;·&nbsp; HR People Team
+        </div>
+        <div class="main-title">✨ ยินดีต้อนรับสู่</div>
+        <div class="booth-title">
+            <span class="people">People</span><span class="connection"> Connection</span>
+            <br><span class="booth">Booth 🎪</span>
+        </div>
+        <div class="subtitle">🎁 ลุ้นรับของรางวัลสุดพิเศษจากเรา!</div>
+    </div>
+
+    <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-icon">🌟</div>
+        <div class="divider-line"></div>
+    </div>
+
+    <!-- PRIZE BOARD -->
+    <div class="prize-board">
+        <div class="prize-card coupon">
+            <div class="prize-icon">🎫</div>
+            <div class="prize-name">คูปอง</div>
+            <div class="prize-count" id="coupon-count">50</div>
+            <div class="prize-label">เหลืออยู่</div>
+        </div>
+        <div class="prize-card jar">
+            <div class="prize-icon">🍯</div>
+            <div class="prize-name">ขนมกระปุก</div>
+            <div class="prize-count" id="jar-count">50</div>
+            <div class="prize-label">เหลืออยู่</div>
+        </div>
+        <div class="prize-card bag">
+            <div class="prize-icon">🍿</div>
+            <div class="prize-name">ขนมซอง</div>
+            <div class="prize-count" id="bag-count">50</div>
+            <div class="prize-label">เหลืออยู่</div>
+        </div>
+        <div class="prize-card total">
+            <div class="prize-icon">🎯</div>
+            <div class="prize-name">สุ่มแล้ว</div>
+            <div class="prize-count" id="spin-count">0</div>
+            <div class="prize-label">ครั้ง</div>
+        </div>
+    </div>
+
+    <!-- SLOT MACHINE -->
+    <div class="slot-machine">
+
+        <!-- Progress Bars -->
+        <div class="progress-section">
+            <div class="prog-row">
+                <div class="prog-icon">🎫</div>
+                <div class="prog-label">คูปอง</div>
+                <div class="prog-bar-wrap"><div class="prog-fill c" id="coupon-bar" style="width:100%"></div></div>
+                <div class="prog-num" id="coupon-prog">50 / 50</div>
+            </div>
+            <div class="prog-row">
+                <div class="prog-icon">🍯</div>
+                <div class="prog-label">ขนมกระปุก</div>
+                <div class="prog-bar-wrap"><div class="prog-fill j" id="jar-bar" style="width:100%"></div></div>
+                <div class="prog-num" id="jar-prog">50 / 50</div>
+            </div>
+            <div class="prog-row">
+                <div class="prog-icon">🍿</div>
+                <div class="prog-label">ขนมซอง</div>
+                <div class="prog-bar-wrap"><div class="prog-fill b" id="bag-bar" style="width:100%"></div></div>
+                <div class="prog-num" id="bag-prog">50 / 50</div>
+            </div>
+        </div>
+
+        <!-- Display -->
+        <div class="slot-display">
+            <span class="slot-emoji" id="slot-emoji">🎁</span>
+            <div class="slot-result-text idle" id="result-text">กดปุ่มเพื่อสุ่มรางวัล</div>
+            <div class="slot-sub-text" id="result-sub"></div>
+        </div>
+
+        <!-- Spin Button -->
+        <button class="spin-btn" id="spin-btn" onclick="spin()">
+            🎰 &nbsp;สุ่มเลย!
+        </button>
+
+    </div>
+
+    <!-- HISTORY -->
+    <div class="history-wrap">
+        <div class="history-header">
+            <div class="history-title">📋 ประวัติการสุ่ม</div>
+            <div class="history-stats">
+                <div class="hstat c">🎫 <span id="coupon-won">0</span></div>
+                <div class="hstat j">🍯 <span id="jar-won">0</span></div>
+                <div class="hstat b">🍿 <span id="bag-won">0</span></div>
+            </div>
+        </div>
+        <ul class="history-list" id="history-list">
+            <li class="empty-history">ยังไม่มีการสุ่ม... กดปุ่มด้านบนเพื่อเริ่มต้น 🎲</li>
+        </ul>
+    </div>
+
+    <button class="reset-btn" onclick="confirmReset()">🔄 รีเซ็ตของรางวัลใหม่</button>
+
 </div>
 
-<!-- ===================== SCREEN 1: WELCOME ===================== -->
-<div class="screen active" id="screen-welcome">
-  <div class="welcome-card">
-    <div class="game-logo">🎮</div>
-    <div class="welcome-brand">Western Digital · SHEE Week 2026</div>
-    <div class="welcome-title">People Connection<br>Mini Game!</div>
-    <div class="welcome-subtitle">
-      ตอบคำถามเกี่ยวกับ Platform ใหม่ของเรา<br>
-      สะสมคะแนน รับของรางวัลฟรี! 🍬🎁
-    </div>
-
-    <!-- Name input -->
-    <div class="input-group">
-      <label class="input-label">👤 ชื่อ-นามสกุล</label>
-      <input class="input-field" id="playerName" type="text"
-             placeholder="กรอกชื่อของคุณ..." maxlength="30">
-    </div>
-
-    <!-- Department Dropdown -->
-    <div class="input-group">
-      <label class="input-label">🏢 แผนก / Department</label>
-      <div class="select-wrapper">
-        <select class="dept-select" id="deptSelect">
-          <option value="" disabled selected>-- เลือกแผนกของคุณ --</option>
-          <option value="CESC">CESC</option>
-          <option value="CREWS">CREWS</option>
-          <option value="CST">CST</option>
-          <option value="DAS">DAS</option>
-          <option value="Data Center">Data Center</option>
-          <option value="Emergency Badge">Emergency Badge</option>
-          <option value="Executive">Executive</option>
-          <option value="FactorySystems">FactorySystems</option>
-          <option value="Finance">Finance</option>
-          <option value="HR">HR</option>
-          <option value="IE">IE</option>
-          <option value="IT">IT</option>
-          <option value="LM">LM</option>
-          <option value="ME">ME</option>
-          <option value="NPI_PRB">NPI_PRB</option>
-          <option value="PC">PC</option>
-          <option value="PE">PE</option>
-          <option value="MFG">MFG</option>
-          <option value="QA">QA</option>
-          <option value="SPMO">SPMO</option>
-          <option value="SQE">SQE</option>
-          <option value="Strategic Ops.">Strategic Ops.</option>
-          <option value="StrategicOps.">StrategicOps.</option>
-          <option value="Student Apprentice">Student Apprentice</option>
-          <option value="T&M">T&amp;M</option>
-          <option value="TEE">TEE</option>
-          <option value="TPE">TPE</option>
-        </select>
-      </div>
-      <div class="dept-badge">🏢 26 แผนก</div>
-    </div>
-
-    <button class="btn-start" onclick="startGame()">
-      🚀 เริ่มเล่นเกมส์เลย!
-    </button>
-
-    <div style="margin-top:16px; font-size:0.65rem; color:rgba(255,255,255,0.3); text-align:center; line-height:1.6;">
-      🕐 10 คำถาม · ⏱ 20 วินาที/ข้อ · 🏆 สะสมคะแนนสูงสุด
-    </div>
-  </div>
-</div>
-
-<!-- ===================== SCREEN 2: GAME ===================== -->
-<div class="screen" id="screen-game">
-  <div class="game-header">
-    <div class="gh-left">
-      <div class="gh-logo">🌐</div>
-      <div>
-        <div class="gh-title">People Connection Game</div>
-        <div class="gh-player" id="headerPlayer">-</div>
-      </div>
-    </div>
-    <div class="gh-score-box">
-      <span class="gh-score-label">SCORE</span>
-      <span class="gh-score-val" id="headerScore">0</span>
-    </div>
-  </div>
-
-  <div class="timer-bar-wrap">
-    <div class="timer-info">
-      <span class="timer-label">⏱ เวลา</span>
-      <span class="timer-val" id="timerDisplay">20</span>
-    </div>
-    <div class="timer-track">
-      <div class="timer-fill" id="timerFill"></div>
-    </div>
-  </div>
-
-  <div class="question-area">
-    <div class="q-progress">
-      <span class="q-num" id="qNum">ข้อ 1 / 10</span>
-      <div class="q-dots" id="qDots"></div>
-    </div>
-    <div class="q-category" id="qCategory">🌐 General</div>
-    <div class="q-card">
-      <div class="q-text" id="qText">กำลังโหลดคำถาม...</div>
-    </div>
-    <div class="answers-grid" id="answersGrid"></div>
-  </div>
-</div>
-
-<!-- ===================== SCREEN 3: RESULT ===================== -->
-<div class="screen" id="screen-result">
-  <div class="result-wrap">
-    <div class="result-header">
-      <span class="result-trophy" id="resultTrophy">🏆</span>
-      <div class="result-title" id="resultTitle">ยอดเยี่ยม!</div>
-      <div class="result-name"  id="resultName">-</div>
-    </div>
-
-    <div class="score-big-card">
-      <span class="score-final-label">FINAL SCORE</span>
-      <span class="score-final-val" id="scoreFinal">0</span>
-      <span class="score-final-max">จาก 1,000 คะแนน</span>
-    </div>
-
-    <div class="score-breakdown">
-      <div class="sb-item">
-        <span class="sb-icon">✅</span>
-        <span class="sb-label">ตอบถูก</span>
-        <span class="sb-val" id="sbCorrect" style="color:#00b894">0</span>
-      </div>
-      <div class="sb-item">
-        <span class="sb-icon">❌</span>
-        <span class="sb-label">ตอบผิด</span>
-        <span class="sb-val" id="sbWrong" style="color:#ff6b6b">0</span>
-      </div>
-      <div class="sb-item">
-        <span class="sb-icon">⚡</span>
-        <span class="sb-label">Bonus</span>
-        <span class="sb-val" id="sbBonus" style="color:#f7c948">0</span>
-      </div>
-    </div>
-
-    <div class="lb-title">🏅 Leaderboard วันนี้</div>
-    <div class="lb-list" id="leaderboardList"></div>
-
-    <div class="reward-card">
-      <span class="reward-emoji" id="rewardEmoji">🎁</span>
-      <div class="reward-title"  id="rewardTitle">ยินดีด้วย!</div>
-      <div class="reward-msg"    id="rewardMsg">มาแสดงคะแนนที่บูธเพื่อรับของรางวัล!</div>
-    </div>
-
-    <button class="btn-play-again" onclick="resetGame()">🔄 เล่นอีกครั้ง</button>
-    <button class="btn-share"      onclick="shareScore()">📤 แชร์คะแนน</button>
-  </div>
-</div>
-
-<!-- ===================== JAVASCRIPT ===================== -->
 <script>
-const questions = [
-  {
-    category: "🌐 People Connection",
-    text: "People Connection Platform ทำงานบน Application อะไร?",
-    answers: ["LINE", "MS Teams", "Slack", "Zoom"],
-    correct: 1,
-    fact: "✅ ใช้ MS Teams เชื่อมต่อพนักงานทุกคนผ่านอุปกรณ์ที่มีอยู่!"
-  },
-  {
-    category: "😊 Happy Workplace",
-    text: "Channel 'Happy Workplace' ใช้ทำอะไร?",
-    answers: ["ส่งรายงาน", "โพสต์กิจกรรม & Q&A", "จองห้องประชุม", "เช็คเงินเดือน"],
-    correct: 1,
-    fact: "✅ Happy Workplace ใช้โพสต์กิจกรรม, Q&A และสร้างความสุขในที่ทำงาน!"
-  },
-  {
-    category: "🏆 Reward & Recognition",
-    text: "ฟีเจอร์ 'Reward & Recognition' ช่วยอะไร?",
-    answers: ["จัดตารางงาน", "ยกย่องและประกาศรางวัลพนักงาน", "ส่งอีเมล", "บันทึกการลา"],
-    correct: 1,
-    fact: "✅ ใช้ประกาศรางวัล Employee Recognition และ Internal/External Awards!"
-  },
-  {
-    category: "📚 Skill Development",
-    text: "Skill Development/Training บน Platform ทำอะไรได้บ้าง?",
-    answers: ["ดูหนัง", "ลงทะเบียนอบรม & ให้ Feedback", "เล่นเกมส์", "ซื้อของ"],
-    correct: 1,
-    fact: "✅ มี Proposal, Class outline, Focus group, Registration และ Feedback!"
-  },
-  {
-    category: "🎯 Key Event",
-    text: "งานอะไรที่แสดงใน Key Event Channel?",
-    answers: ["Birthday Party", "Community Day & VIP Visit", "Movie Night", "Food Festival"],
-    correct: 1,
-    fact: "✅ มี Community Day, Site KPI Workshop, Customer Audit และ VIP Visit!"
-  },
-  {
-    category: "🚀 Go Live",
-    text: "People Connection Platform จะเปิดใช้งานจริงวันที่เท่าไหร่?",
-    answers: ["1 April 2026", "12 April 2026", "1 May 2026", "31 March 2026"],
-    correct: 1,
-    fact: "✅ GO LIVE วันที่ 12 April 2026 - ใกล้แล้ว!"
-  },
-  {
-    category: "🌱 GG&D",
-    text: "GG&D & Sustaining Activities มีฟีเจอร์อะไรบ้าง?",
-    answers: ["เฉพาะ Video call", "Pre/Post activity + Appreciation post", "แค่ส่งไฟล์", "ดูข่าวสาร"],
-    correct: 1,
-    fact: "✅ มี Pre-activity promotion, Post-activity summary, Appreciation post และ Q&A!"
-  },
-  {
-    category: "📱 Platform",
-    text: "Platform นี้ออกแบบมาเพื่อพนักงานกลุ่มไหนเป็นหลัก?",
-    answers: ["ผู้บริหารเท่านั้น", "Frontline employees ทุกคน", "เฉพาะ IT", "เฉพาะ HR"],
-    correct: 1,
-    fact: "✅ ออกแบบมาเพื่อ Frontline employees ทุกคน ใช้ผ่านอุปกรณ์ที่มีอยู่!"
-  },
-  {
-    category: "📢 Culture",
-    text: "Culture Channel บน Platform มีเนื้อหาอะไร?",
-    answers: ["เฉพาะ Policy", "Value-based stories & Culture video", "แค่ประกาศ", "ข้อมูลเงินเดือน"],
-    correct: 1,
-    fact: "✅ มี Promotion, Value-based stories และ Culture video clip หรือ Testimonial!"
-  },
-  {
-    category: "🎪 SHEE Week",
-    text: "วันนี้ที่บูธ SHEE Week เราแนะนำอะไร?",
-    answers: ["Software ใหม่", "People Connection Platform บน MS Teams", "Hardware ใหม่", "Policy ใหม่"],
-    correct: 1,
-    fact: "✅ วันนี้คุณได้ทดลอง People Connection Platform แล้ว! ใช้จริงได้ 12 April 2026!"
-  }
-];
+    // ========== CONFIG ==========
+    const INIT = { coupon: 50, jar: 50, bag: 50 };
 
-let leaderboard = JSON.parse(localStorage.getItem('pcp_lb') || '[]');
+    let state = {
+        coupon: 50, jar: 50, bag: 50,
+        spins: 0,
+        couponWon: 0, jarWon: 0, bagWon: 0,
+        history: []
+    };
 
-let state = {
-  playerName: '', department: '',
-  currentQ: 0, score: 0,
-  correctCount: 0, wrongCount: 0, bonusPoints: 0,
-  timer: 20, timerInterval: null,
-  answered: false, dots: []
-};
+    let isSpinning = false;
 
-function startGame() {
-  const name = document.getElementById('playerName').value.trim();
-  const dept = document.getElementById('deptSelect').value;
+    // Prize definitions
+    const PRIZES = {
+        coupon: { name: '🎫 คูปอง',      emoji: '🎫', cls: 'win-coupon', confetti: ['#00d4ff','#7b61ff'], histCls: 'coupon-item' },
+        jar:    { name: '🍯 ขนมกระปุก',  emoji: '🍯', cls: 'win-jar',    confetti: ['#ffd700','#ff9900'], histCls: 'jar-item'    },
+        bag:    { name: '🍿 ขนมซอง',     emoji: '🍿', cls: 'win-bag',    confetti: ['#ff6b9d','#ff4466'], histCls: 'bag-item'    },
+    };
 
-  if (!name) {
-    const inp = document.getElementById('playerName');
-    inp.style.borderColor = '#ff6b6b';
-    inp.placeholder = '⚠️ กรุณากรอกชื่อก่อน!';
-    setTimeout(() => { inp.style.borderColor = ''; inp.placeholder = 'กรอกชื่อของคุณ...'; }, 2000);
-    return;
-  }
-  if (!dept) {
-    const sel = document.getElementById('deptSelect');
-    sel.style.borderColor = '#ff6b6b';
-    setTimeout(() => sel.style.borderColor = '', 2000);
-    return;
-  }
+    // ========== PARTICLES ==========
+    function createParticles() {
+        const wrap = document.getElementById('particles');
+        for (let i = 0; i < 35; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 4 + 2;
+            p.style.cssText = `
+                left:${Math.random()*100}%;
+                width:${size}px; height:${size}px;
+                animation-duration:${Math.random()*15+10}s;
+                animation-delay:${Math.random()*15}s;
+            `;
+            wrap.appendChild(p);
+        }
+    }
 
-  state = {
-    playerName: name, department: dept,
-    currentQ: 0, score: 0,
-    correctCount: 0, wrongCount: 0, bonusPoints: 0,
-    timer: 20, timerInterval: null,
-    answered: false, dots: Array(questions.length).fill('pending')
-  };
+    // ========== CONFETTI ==========
+    function launchConfetti(c1, c2) {
+        const wrap = document.getElementById('confetti');
+        wrap.innerHTML = '';
+        const colors = [c1, c2, '#ffd700', '#ffffff', '#ff9900', '#7b61ff'];
+        for (let i = 0; i < 110; i++) {
+            const el = document.createElement('div');
+            el.className = 'cp';
+            const size = Math.random() * 10 + 5;
+            el.style.cssText = `
+                left:${Math.random()*100}%;
+                top:-20px;
+                width:${size}px;
+                height:${size*(Math.random()>0.5?1:1.6)}px;
+                background:${colors[Math.floor(Math.random()*colors.length)]};
+                border-radius:${Math.random()>0.5?'50%':'2px'};
+                animation-delay:${Math.random()*0.7}s;
+                animation-duration:${Math.random()*1.2+1}s;
+            `;
+            wrap.appendChild(el);
+        }
+        setTimeout(() => wrap.innerHTML = '', 3000);
+    }
 
-  document.getElementById('headerPlayer').textContent = `👤 ${name} · ${dept}`;
-  document.getElementById('headerScore').textContent = '0';
-  showScreen('screen-game');
-  loadQuestion();
-}
+    // ========== SPIN ==========
+    function spin() {
+        if (isSpinning) return;
+        if (state.coupon === 0 && state.jar === 0 && state.bag === 0) return;
 
-function loadQuestion() {
-  if (state.currentQ >= questions.length) { endGame(); return; }
+        isSpinning = true;
+        const btn   = document.getElementById('spin-btn');
+        const emoji = document.getElementById('slot-emoji');
+        const resEl = document.getElementById('result-text');
+        const subEl = document.getElementById('result-sub');
 
-  state.answered = false;
-  const q = questions[state.currentQ];
+        btn.disabled = true;
+        emoji.className = 'slot-emoji spinning';
+        resEl.className = 'slot-result-text idle';
+        resEl.textContent = '🎲 กำลังสุ่ม...';
+        subEl.textContent = '';
 
-  document.getElementById('qNum').textContent = `ข้อ ${state.currentQ + 1} / ${questions.length}`;
-  document.getElementById('qCategory').textContent = q.category;
-  document.getElementById('qText').textContent = q.text;
+        const spinEmojis = ['🎁','🎫','🍯','🍿','🎰','⭐','🎊','🎉','💫','✨','🎈','🎀'];
+        let t = 0;
+        const iv = setInterval(() => {
+            emoji.textContent = spinEmojis[t++ % spinEmojis.length];
+        }, 80);
 
-  // Dots
-  const dotsEl = document.getElementById('qDots');
-  dotsEl.innerHTML = '';
-  for (let i = 0; i < questions.length; i++) {
-    const d = document.createElement('div');
-    d.className = 'q-dot';
-    if (i < state.currentQ)       d.classList.add(state.dots[i] === 'correct' ? 'done' : 'wrong');
-    else if (i === state.currentQ) d.classList.add('current');
-    dotsEl.appendChild(d);
-  }
+        setTimeout(() => {
+            clearInterval(iv);
+            emoji.className = 'slot-emoji';
 
-  // Answers
-  const grid = document.getElementById('answersGrid');
-  grid.innerHTML = '';
-  q.answers.forEach((ans, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'ans-btn';
-    btn.textContent = ans;
-    btn.onclick = () => checkAnswer(i, btn);
-    grid.appendChild(btn);
-  });
+            // Build pool (equal weight per remaining item)
+            const pool = [];
+            for (let i = 0; i < state.coupon; i++) pool.push('coupon');
+            for (let i = 0; i < state.jar;    i++) pool.push('jar');
+            for (let i = 0; i < state.bag;    i++) pool.push('bag');
 
-  startTimer();
-}
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            const prize = PRIZES[pick];
 
-function startTimer() {
-  clearInterval(state.timerInterval);
-  state.timer = 20;
-  updateTimerUI();
-  state.timerInterval = setInterval(() => {
-    state.timer--;
-    updateTimerUI();
-    if (state.timer <= 0) { clearInterval(state.timerInterval); if (!state.answered) timeOut(); }
-  }, 1000);
-}
+            // Update state
+            state[pick]--;
+            state.spins++;
+            state[pick + 'Won']++;
 
-function updateTimerUI() {
-  document.getElementById('timerDisplay').textContent = state.timer;
-  const fill = document.getElementById('timerFill');
-  fill.style.width = (state.timer / 20 * 100) + '%';
-  fill.className = 'timer-fill' + (state.timer <= 5 ? ' danger' : state.timer <= 10 ? ' warning' : '');
-}
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-function timeOut() {
-  if (state.answered) return;
-  state.answered = true;
-  state.dots[state.currentQ] = 'wrong';
-  state.wrongCount++;
-  document.querySelectorAll('.ans-btn').forEach((b, i) => {
-    b.disabled = true;
-    if (i === questions[state.currentQ].correct) b.classList.add('correct');
-  });
-  showFeedback(false, 0, '⏰ หมดเวลา!', questions[state.currentQ].fact);
-  setTimeout(() => { hideFeedback(); state.currentQ++; loadQuestion(); }, 2200);
-}
+            // Update display
+            emoji.textContent = prize.emoji;
+            resEl.className   = `slot-result-text ${prize.cls}`;
+            resEl.textContent = `🎉 ยินดีด้วย! ได้รับ${prize.name.replace(/^../,'')}`;
 
-function checkAnswer(idx, btn) {
-  if (state.answered) return;
-  state.answered = true;
-  clearInterval(state.timerInterval);
+            // Sub text
+            const remaining = [];
+            if (state.coupon > 0) remaining.push(`🎫 ${state.coupon}`);
+            if (state.jar    > 0) remaining.push(`🍯 ${state.jar}`);
+            if (state.bag    > 0) remaining.push(`🍿 ${state.bag}`);
+            subEl.textContent = remaining.length ? `เหลือ: ${remaining.join('  ')}` : '';
 
-  const q = questions[state.currentQ];
-  const isCorrect = (idx === q.correct);
+            launchConfetti(...prize.confetti);
+            addHistory(pick, prize.name, timeStr);
+            updateUI();
 
-  document.querySelectorAll('.ans-btn').forEach((b, i) => {
-    b.disabled = true;
-    if (i === q.correct) b.classList.add('correct');
-  });
-  if (!isCorrect) btn.classList.add('wrong');
+            isSpinning = false;
+            btn.disabled = false;
 
-  if (isCorrect) {
-    const bonus = Math.floor(state.timer * 2.5);
-    const pts = 100 + bonus;
-    state.score += pts;
-    state.correctCount++;
-    state.bonusPoints += bonus;
-    state.dots[state.currentQ] = 'correct';
-    document.getElementById('headerScore').textContent = state.score;
-    showFeedback(true, pts, bonus > 0 ? `+${bonus} Speed Bonus! ⚡` : '', q.fact);
-    spawnConfetti();
-  } else {
-    state.wrongCount++;
-    state.dots[state.currentQ] = 'wrong';
-    showFeedback(false, 0, '😬 ไม่ถูก!', q.fact);
-  }
+            // All prizes gone
+            if (state.coupon === 0 && state.jar === 0 && state.bag === 0) {
+                btn.innerHTML = '🎊 ของรางวัลหมดแล้ว!';
+                btn.className = 'spin-btn empty';
+                btn.disabled  = true;
+                resEl.textContent = '🎊 ของรางวัลหมดทุกรายการแล้ว!';
+                subEl.textContent = 'ขอบคุณทุกคนที่ร่วมกิจกรรม People Connection Booth 🙏';
+            }
 
-  setTimeout(() => { hideFeedback(); state.currentQ++; loadQuestion(); }, 2500);
-}
+        }, 2000);
+    }
 
-function showFeedback(correct, pts, extra, fact) {
-  document.getElementById('fbEmoji').textContent  = correct ? '🎉' : '😅';
-  document.getElementById('fbTitle').textContent  = correct ? '✅ ถูกต้อง!' : '❌ ผิด!';
-  document.getElementById('fbTitle').className    = `fb-title ${correct ? 'correct' : 'wrong'}`;
-  document.getElementById('fbPoints').textContent = correct ? `+${pts} คะแนน  ${extra}` : extra;
-  document.getElementById('fbFact').textContent   = fact;
-  document.getElementById('feedbackPopup').className = `feedback-popup ${correct ? '' : 'wrong-fb'} show`;
-  document.getElementById('overlay').classList.add('show');
-}
+    // ========== UPDATE UI ==========
+    function updateUI() {
+        // Counts
+        document.getElementById('coupon-count').textContent = state.coupon;
+        document.getElementById('jar-count').textContent    = state.jar;
+        document.getElementById('bag-count').textContent    = state.bag;
+        document.getElementById('spin-count').textContent   = state.spins;
 
-function hideFeedback() {
-  document.getElementById('feedbackPopup').classList.remove('show');
-  document.getElementById('overlay').classList.remove('show');
-}
+        // Won stats
+        document.getElementById('coupon-won').textContent = state.couponWon;
+        document.getElementById('jar-won').textContent    = state.jarWon;
+        document.getElementById('bag-won').textContent    = state.bagWon;
 
-function endGame() {
-  clearInterval(state.timerInterval);
-  leaderboard.push({ name: state.playerName, dept: state.department, score: state.score, time: new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) });
-  leaderboard.sort((a,b) => b.score - a.score);
-  leaderboard = leaderboard.slice(0, 10);
-  localStorage.setItem('pcp_lb', JSON.stringify(leaderboard));
-  showScreen('screen-result');
-  renderResult();
-}
+        // Progress bars
+        document.getElementById('coupon-bar').style.width = (state.coupon / INIT.coupon * 100) + '%';
+        document.getElementById('jar-bar').style.width    = (state.jar    / INIT.jar    * 100) + '%';
+        document.getElementById('bag-bar').style.width    = (state.bag    / INIT.bag    * 100) + '%';
 
-function renderResult() {
-  const s = state;
-  document.getElementById('scoreFinal').textContent = s.score;
-  document.getElementById('sbCorrect').textContent  = s.correctCount;
-  document.getElementById('sbWrong').textContent    = s.wrongCount;
-  document.getElementById('sbBonus').textContent    = `+${s.bonusPoints}`;
-  document.getElementById('resultName').textContent = `👤 ${s.playerName} · ${s.department}`;
+        document.getElementById('coupon-prog').textContent = `${state.coupon} / ${INIT.coupon}`;
+        document.getElementById('jar-prog').textContent    = `${state.jar}    / ${INIT.jar}`;
+        document.getElementById('bag-prog').textContent    = `${state.bag}    / ${INIT.bag}`;
+    }
 
-  const pct = s.score / 1000;
-  let trophy, title;
-  if (pct >= 0.9)      { trophy='🥇'; title='ระดับ LEGEND! 🔥'; }
-  else if (pct >= 0.7) { trophy='🥈'; title='ยอดเยี่ยมมาก! ⭐'; }
-  else if (pct >= 0.5) { trophy='🥉'; title='ดีมาก! Keep Going!'; }
-  else                  { trophy='🎯'; title='ลองใหม่อีกครั้ง!'; }
+    // ========== HISTORY ==========
+    function addHistory(type, name, time) {
+        state.history.unshift({ type, name, time, num: state.spins });
+        const list = document.getElementById('history-list');
+        if (state.history.length === 1) list.innerHTML = '';
 
-  document.getElementById('resultTrophy').textContent = trophy;
-  document.getElementById('resultTitle').textContent  = title;
+        const li = document.createElement('li');
+        li.className = `history-item ${PRIZES[type].histCls}`;
+        li.innerHTML = `
+            <span class="h-num">#${state.spins}</span>
+            <span class="h-name">${name}</span>
+            <span class="h-time">${time}</span>
+        `;
+        list.insertBefore(li, list.firstChild);
+    }
 
-  let rEmoji, rTitle, rMsg;
-  if (s.score >= 800)      { rEmoji='🎁🍫🍬'; rTitle='🏆 รางวัลพิเศษ!'; rMsg='คะแนนสูงมาก! มาแสดงหน้าจอที่บูธเพื่อรับของรางวัลสุดพิเศษ!'; }
-  else if (s.score >= 500) { rEmoji='🍬🍫';  rTitle='🎉 ยินดีด้วย!'; rMsg='มาแสดงคะแนนที่บูธเพื่อรับขนมและของรางวัลฟรี!'; }
-  else                      { rEmoji='🍭';    rTitle='😊 ขอบคุณที่ร่วมเล่น!'; rMsg='มาแสดงหน้าจอที่บูธเพื่อรับขนมฟรี!\nลองเล่นอีกครั้งเพื่อคะแนนที่สูงขึ้น!'; }
+    // ========== RESET ==========
+    function confirmReset() {
+        if (confirm('⚠️ รีเซ็ตของรางวัลใหม่?\n\n🎫 คูปอง 50 ใบ\n🍯 ขนมกระปุก 50 ชิ้น\n🍿 ขนมซอง 50 ชิ้น\n\nประวัติทั้งหมดจะถูกลบ')) {
+            state = { coupon: 50, jar: 50, bag: 50, spins: 0, couponWon: 0, jarWon: 0, bagWon: 0, history: [] };
 
-  document.getElementById('rewardEmoji').textContent = rEmoji;
-  document.getElementById('rewardTitle').textContent = rTitle;
-  document.getElementById('rewardMsg').textContent   = rMsg;
+            document.getElementById('history-list').innerHTML =
+                '<li class="empty-history">ยังไม่มีการสุ่ม... กดปุ่มด้านบนเพื่อเริ่มต้น 🎲</li>';
+            document.getElementById('slot-emoji').textContent  = '🎁';
+            document.getElementById('result-text').className   = 'slot-result-text idle';
+            document.getElementById('result-text').textContent = 'กดปุ่มเพื่อสุ่มรางวัล';
+            document.getElementById('result-sub').textContent  = '';
 
-  const lb = document.getElementById('leaderboardList');
-  lb.innerHTML = '';
-  leaderboard.slice(0,5).forEach((entry, i) => {
-    const isMe = entry.name === s.playerName && entry.score === s.score;
-    const div  = document.createElement('div');
-    div.className = `lb-item ${isMe ? 'me' : ''}`;
-    const rankClass = ['r1','r2','r3','rn','rn'][i];
-    const rankLabel = ['🥇','🥈','🥉','4','5'][i];
-    div.innerHTML = `
-      <div class="lb-rank ${rankClass}">${rankLabel}</div>
-      <div class="lb-info">
-        <span class="lb-name">${entry.name}${isMe ? ' ← คุณ' : ''}</span>
-        <span class="lb-dept">${entry.dept} · ${entry.time}</span>
-      </div>
-      <div class="lb-score-val">${entry.score}</div>`;
-    lb.appendChild(div);
-  });
+            const btn = document.getElementById('spin-btn');
+            btn.innerHTML = '🎰 &nbsp;สุ่มเลย!';
+            btn.className = 'spin-btn';
+            btn.disabled  = false;
 
-  if (s.score >= 500) for (let i=0;i<40;i++) setTimeout(()=>spawnConfetti(), i*80);
-}
+            updateUI();
+        }
+    }
 
-function resetGame() {
-  document.getElementById('playerName').value = '';
-  document.getElementById('deptSelect').value = '';
-  showScreen('screen-welcome');
-}
-
-function shareScore() {
-  const text = `🎮 People Connection Platform GAME\n👤 ${state.playerName} · ${state.department}\n🏆 คะแนน: ${state.score}/1000\n✅ ตอบถูก: ${state.correctCount}/10\n\nงาน SHEE Week 2026 🎪\n#PeopleConnectionPlatform #WesternDigital`;
-  if (navigator.share) navigator.share({title:'People Connection Game Score', text});
-  else navigator.clipboard.writeText(text).then(()=>alert('คัดลอกคะแนนแล้ว! 🎉'));
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
-
-function spawnConfetti() {
-  const colors = ['#00b894','#00cec9','#f7c948','#ff6b6b','#a29bfe','#fd79a8'];
-  const el = document.createElement('div');
-  el.className = 'confetti-piece';
-  el.style.cssText = `left:${Math.random()*100}vw;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*2+1.5}s;animation-delay:${Math.random()*0.5}s;border-radius:${Math.random()>.5?'50%':'2px'};`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 4000);
-}
-
-(function createParticles(){
-  const wrap = document.getElementById('particles');
-  for(let i=0;i<20;i++){
-    const p = document.createElement('div');
-    p.className='fp';
-    const sz = Math.random()*4+2;
-    const c  = ['rgba(0,184,148,0.4)','rgba(0,206,201,0.3)','rgba(9,132,227,0.3)'];
-    p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:-${sz}px;background:${c[Math.floor(Math.random()*3)]};animation-duration:${Math.random()*10+8}s;animation-delay:${Math.random()*8}s;`;
-    wrap.appendChild(p);
-  }
-})();
+    // ========== INIT ==========
+    createParticles();
+    updateUI();
 </script>
 </body>
 </html>
